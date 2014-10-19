@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>TO_We_Deliver</title>
+<style type="text/css">
+	#map_canvas { width: 100%; height: 550px; }
+  	body { font-family: Arial, sans-serif; }
+</style>
+
+
+<!--Load the AJAX API-->
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>         
+<!-- Load the maps API (v3) -->
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<!-- Load geoxml3 -->
+<script type="text/javascript" src="http://geoxml3.googlecode.com/svn/branches/polys/geoxml3.js"></script>
+<!-- jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+
+
+
+
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+        	google.load('visualization', '1', {});
+        </script>
+        
+        <script type="text/javascript" src="http://gmaps-utility-gis.googlecode.com/svn/trunk/fusiontips/src/fusiontips.js">
+        </script>
+        <script type="text/javascript" id="script">
+            
+            var map, layer, layer2;
+            
+			function loadPoly() {
+
+              if (layer != null) {
+                layer.setMap(null);
+                google.maps.event.clearInstanceListeners(layer);
+                
+              }
+					
+					
+					             var tableid = '15n2ROl2pwOq5VhgWWvo8pFP4mIryWKSmP__bKEI';
+              layer  = new google.maps.FusionTablesLayer({
+                query: {
+                  select: 'geometry',
+                  from: tableid
+                },
+                map: map,
+								suppressInfoWindows: true
+              });
+					
+							
+							
+								var tableid2 = '1hAGGLAeWP6hYLan4VZeEW62ly6-lOjhFaHd3b58';
+              layer2  = new google.maps.FusionTablesLayer({
+                query: {
+                  select: 'Address',
+                  from: tableid2
+                },
+                map: map
+              });
+							
+							
+							
+ 
+							
+
+
+							
+							
+              layer.enableMapTips({
+                select: "'POSTAL'", // list of columns to query.
+                from: tableid, // fusion table name
+                geometryColumn: 'geometry', // geometry column name
+                suppressMapTips: false, // optional, whether to show map tips.
+                delay: 20, // milliseconds mouse pause before send a server query. default 300.
+                tolerance: 1 // tolerance in pixel around mouse. default is 6.
+              });
+							
+							
+              map.setCenter(new google.maps.LatLng(43.729434809694695, -79.4175601799317));
+              map.setZoom(11);
+              addListeners();
+              
+            }
+            
+
+            function addListeners() {
+						var myHtml2;
+		
+						google.maps.event.addListener(layer, 'mouseover', function(fEvent) {
+							
+                		var row2 = fEvent.row;
+                 		myHtml = '';
+                		
+										for (var x in row2) {
+                  			if (row2.hasOwnProperty(x)) {
+                    				myHtml += row2[x].value;
+                  			}
+                		}
+										myHtml2=myHtml;
+
+              			});
+              
+							
+			google.maps.event.addListener(layer, 'click', function(fEvent) {
+				
+				var query = "SELECT 'geometry' FROM " + tableid + " WHERE 'POSTAL' = '" + myHtml2 + "'";
+  			//	layer.setOptions(query);
+  				zoom2query(query);
+            			var row = fEvent.row;
+				var row3 = fEvent.row;
+               			myHtml = '';
+                
+                  		if (row3.hasOwnProperty('POSTAL')) {
+                    			myHtml += row3['POSTAL'].value;
+                  		}
+                
+				var row4 = myHtml;
+				$('#charts').append('<b>' + row4 + '</b>' + ', ');
+                
+              		});
+							
+			
+
+							
+			}
+			
+			
+			
+            
+		</script>
+
+
+
+
+		<script type="text/javascript">
+			google.load('visualization', '1', {'packages':['corechart', 'table', 'geomap']});
+			var map;
+			var layer;
+			var tableid = '15n2ROl2pwOq5VhgWWvo8pFP4mIryWKSmP__bKEI'; 
+	
+
+
+			function initialize() {
+  				map = new google.maps.Map(document.getElementById('map_canvas'), {
+    			center: new google.maps.LatLng(49.2671, -123.12),
+				zoom: 11,
+    			mapTypeId: google.maps.MapTypeId.ROADMAP
+  				});
+
+  				var style = [
+    			{
+					featureType: 'all',
+  					elementType: 'all',
+      				stylers: [
+        			{ saturation: -5 }
+      				]
+    			}
+  				];
+
+ 				 var styledMapType = new google.maps.StyledMapType(style, {
+   				 map: map,
+    			 name: 'Styled Map'
+  				 });
+
+  				map.mapTypes.set('map-style', styledMapType);
+  				map.setMapTypeId('map-style');
+
+  				layer = new google.maps.FusionTablesLayer(tableid);
+  				layer.setOptions("SELECT 'geometry' FROM " + tableid);
+  				layer.setMap(map);
+  				loadPoly();
+				$('#charts').empty();
+				
+				change();
+   
+ 			}
+			
+			function change() {
+							 
+							 document.getElementById("search-string_3").value='--Select--';
+							}
+			
+			
+
+			function changeMap() {
+  				var searchString = document.getElementById('searchString').value.replace("'", "\\'");
+  				if(searchString == "") {
+    				layer.setQuery("SELECT 'geometry' FROM " + tableid);
+    				return;
+  				}
+  				var query = "SELECT 'geometry' FROM " + tableid + " WHERE 'POSTAL' = '" + searchString + "'";
+  		//		layer.setOptions(query);
+					
+					  				zoom2query(query);
+					
+					}
+					
+
+
+ 
+
+
+    function changeMap_1() {
+      var whereClause;
+      var searchString = document.getElementById('search-string_3').value.replace(/'/g, "\\'");
+      if (searchString != '--Select--') {
+        whereClause = "'Category' = '" + searchString + "'";
+      }
+
+
+
+			      layer.setOptions({
+
+				suppressInfoWindows: true,
+				map: map
+      });
+
+
+
+
+      layer2.setOptions({
+        query: {
+          select: "'Category'",
+          from: "1hAGGLAeWP6hYLan4VZeEW62ly6-lOjhFaHd3b58",
+          where: whereClause
+					
+        }
+				
+      });
+			
+
+
+
+    }
+
+
+
+    	
+
+
+			function zoom2query(query) {	
+  				
+				var queryText = encodeURIComponent(query);
+  				var query = new google.visualization.Query('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
+				query.send(zoomTo);
+				
+
+			}
+
+
+
+
+			function zoomTo(response) {
+
+				if (!response) {
+  					alert('no response');
+  					return;
+				}
+				if (response.isError()) {
+  					alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+  						return;
+				} 
+  				FTresponse = response;
+  				numRows = response.getDataTable().getNumberOfRows();
+  				numCols = response.getDataTable().getNumberOfColumns();
+  				// handle multiple matches
+  				var bounds = new google.maps.LatLngBounds();
+  				
+				for (var i=0;i<numRows;i++){
+     				var kml =  FTresponse.getDataTable().getValue(i,0);
+     				// create a geoXml3 parser for the click handlers
+     				var geoXml = new geoXML3.parser({
+						
+
+                    map: map,
+                    suppressInfoWindows: false,
+										polygonOptions: { clickable: false},
+		    		zoom: false
+						
+						
+                });
+								
+								
+
+     			geoXml.parseKmlString("<Placemark>"+kml+"</Placemark>");
+
+       			if (i==0) var bounds = geoXml.docs[0].gpolygons[0].bounds;
+      			 else bounds.union(geoXml.docs[0].gpolygons[0].bounds);
+   
+  				}
+  				map.fitBounds(bounds);
+					
+					
+				
+
+				}
+
+				
+
+		</script>
+
+</head>
+
+<body onload="initialize();" bgcolor="#EEEEEE">
+
+	<div style="margin-top: 5px;">
+  			<label><font color="#00CC00"><b>FSA Code: </b></font></label>
+  			<select id="searchString" onchange="changeMap(this.value); $('#charts').append('<b>' + this.value + '</b>' + ', ');">
+        
+          <option value="M2J">M2J</option>
+          <option value="M2K">M2K</option>
+          <option value="M2L">M2L</option>
+          <option value="M2N">M2N</option>
+          <option value="M2P">M2P</option>
+          <option value="M3A">M3A</option>
+          <option value="M3B">M3B</option>
+          <option value="M3C">M3C</option>
+          <option value="M3H">M3H</option>
+          <option value="M4A">M4A</option>
+          <option value="M4B">M4B</option>
+          <option value="M4C">M4C</option>
+          <option value="M4E">M4E</option>
+          <option value="M4G">M4G</option>
+          <option value="M4H">M4H</option>
+          <option value="M4J">M4J</option>
+          <option value="M4K">M4K</option>
+          <option value="M4L">M4L</option>
+          <option value="M4M">M4M</option>
+          <option value="M4N">M4N</option>
+          <option value="M4P">M4P</option>
+          <option value="M4R">M4R</option>
+          <option value="M4S">M4S</option>
+          <option value="M4T">M4T</option>
+          <option value="M4V">M4V</option>
+          <option value="M4W">M4W</option>
+          <option value="M4X">M4X</option>
+          <option value="M4Y">M4Y</option>
+          <option value="M5A">M5A</option>
+          <option value="M5B">M5B</option>
+          <option value="M5C">M5C</option>
+          <option value="M5E">M5E</option>
+          <option value="M5G">M5G</option>
+          <option value="M5H">M5H</option>
+          <option value="M5J">M5J</option>
+          <option value="M5K">M5K</option>
+          <option value="M5L">M5L</option>
+          <option value="M5M">M5M</option>
+          <option value="M5N">M5N</option>
+          <option value="M5P">M5P</option>
+          <option value="M5R">M5R</option>
+          <option value="M5S">M5S</option>
+          <option value="M5T">M5T</option>
+          <option value="M5V">M5V</option>
+          <option value="M5W">M5W</option>
+          <option value="M5X">M5X</option>
+          <option value="M6A">M6A</option>
+          <option value="M6B">M6B</option>
+          <option value="M6C">M6C</option>
+          <option value="M6E">M6E</option>
+          <option value="M6G">M6G</option>
+          <option value="M6H">M6H</option>
+          <option value="M6J">M6J</option>
+          <option value="M6K">M6K</option>
+          <option value="M6R">M6R</option>
+          <option value="M7A">M7A</option>
+
+
+
+
+      </select>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <label class="layer-wizard-search-label">
+        Category:
+        <select id="search-string_3" onchange="changeMap_1(this.value);">
+          <option value="--Select--">--Select--</option>
+          <option value="Baked Goods">Baked Goods</option>
+          <option value="Caribbean">Caribbean</option>
+          <option value="Chicken">Chicken</option>
+          <option value="Chinese">Chinese</option>
+          <option value="Deli">Deli</option>
+          <option value="Fish and Seafood">Fish and Seafood</option>
+          <option value="Greek">Greek</option>
+          <option value="Grillhouse">Grillhouse</option>
+          <option value="Halal">Halal</option>
+          <option value="Healthy">Healthy</option>
+          <option value="Indian">Indian</option>
+          <option value="International">International</option>
+          <option value="Italian">Italian</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Korean">Korean</option>
+          <option value="Kosher">Kosher</option>
+          <option value="Mediterranean">Mediterranean</option>
+          <option value="Mexican">Mexican</option>
+          <option value="Pan-Asian">Pan-Asian</option>
+          <option value="Pizza">Pizza</option>
+          <option value="Steakhouse">Steakhouse</option>
+          <option value="Sushi">Sushi</option>
+          <option value="Thai">Thai</option>
+          <option value="Vegan">Vegan</option>
+          <option value="Vegetarian">Vegetarian</option>
+        </select>
+      </label> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" onclick="initialize()" value="Reset Map" align="right">
+
+    </div>
+		
+
+
+   
+		
+	
+
+
+
+
+		<script type='text/javascript' src='http://stats.townnews.com/shared-content/stats/common/tracker.js'></script>
+
+			<div id="map_canvas"></div>
+			<div id="info"></div>
+
+			<form class="form-horizontal">
+                        <fieldset>
+                            <div class="control-group" id="charts"></div>
+                        </fieldset>
+            </form>
+
+
+</body>
+
+</html>
